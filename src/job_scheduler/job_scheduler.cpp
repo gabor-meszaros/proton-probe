@@ -1,6 +1,6 @@
 ﻿#include "job_scheduler.h"
 
-int test()
+JobScheduler::JobIdType JobScheduler::add()
 {
-	return 42;
+	return JobIdType(42);
 }
