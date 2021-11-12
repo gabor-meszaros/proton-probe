@@ -1,0 +1,7 @@
+﻿cmake_minimum_required(VERSION 3.21)
+
+add_library(
+	job_scheduler_lib STATIC
+	"job_scheduler.cpp"
+)
+

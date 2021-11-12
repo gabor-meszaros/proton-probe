@@ -1,9 +1,9 @@
-﻿# CMakeList.txt : CMake project for src, include source and define
-# project specific logic here.
+# CMakeList.txt : Top-level CMake project file, do global configuration
+# and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.21)
+cmake_minimum_required(VERSION 3.21)
 
-# Add source to this project's executable.
-add_executable (src "src.cpp" "src.h")
+include_directories(.)
 
-# TODO: Add tests and install targets if needed.
+add_subdirectory("job_scheduler")
+add_subdirectory("test")
