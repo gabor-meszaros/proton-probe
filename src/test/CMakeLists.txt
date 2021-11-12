@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 include(FetchContent)
 FetchContent_Declare(
 	googletest
-	URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+	URL https://github.com/google/googletest/archive/d4e3b8cedf4f57922efa586cb3c796c8fee2d3f3.zip
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -23,7 +23,7 @@ add_executable(
 target_link_libraries(
 	job_scheduler_test
 	job_scheduler_lib
-	gtest_main
+	gmock_main
 )
 
 add_dependencies(
