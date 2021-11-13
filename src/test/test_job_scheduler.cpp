@@ -30,7 +30,7 @@ TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	scheduler.stop(true);
 }
 
-TEST(AJobScheduler, ReturndsUniqueJobIds) {
+TEST(AJobScheduler, ReturnsUniqueJobIds) {
 	NiceMock<MockJobMonitor> jobMonitor;
 	JobScheduler scheduler(jobMonitor);
 
