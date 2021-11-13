@@ -170,6 +170,7 @@ TEST(AJobScheduler, RetriesFailedJobExecutionFiveTimes) {
 
 	NiceMock<MockJob> job;
 	EXPECT_CALL(job, execute())
+		.Times(numberOfRetries + 1)
 		.WillRepeatedly(Return(false));
 	scheduler.add(job);
 	scheduler.stop(true);

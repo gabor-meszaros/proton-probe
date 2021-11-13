@@ -14,6 +14,8 @@ namespace ProtonProbe
 		void operator()();
 		void stop(bool finishRemaininJobs);
 	private:
+		const static int MAX_NUMBER_OF_RETRIES_ON_FAILURE{ 5 };
+
 		JobQueue& mJobQueue;
 		IJobMonitor& mJobMonitor;
 		bool mWork{ true };
