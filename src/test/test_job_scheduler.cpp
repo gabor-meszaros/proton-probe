@@ -144,3 +144,17 @@ TEST(AJobScheduler, MonitorsJobExecutionSuccess) {
 	scheduler.add(job);
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, MonitorsJobExecutionRetries) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	EXPECT_CALL(jobMonitor, jobRetryOnFailure(_))
+		.Times(AtLeast(1));
+
+	JobScheduler scheduler(jobMonitor);
+
+	NiceMock<MockJob> job;
+	EXPECT_CALL(job, execute())
+		.WillRepeatedly(Return(false));
+	scheduler.add(job);
+	scheduler.stop(true);
+}
