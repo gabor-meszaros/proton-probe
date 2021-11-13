@@ -1,6 +1,10 @@
+#include <stdexcept>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
 #include <job_scheduler/job_scheduler.h>
+
 #include "mock_job.h"
 #include "mock_job_monitor.h"
 
@@ -88,4 +92,11 @@ TEST(AJobScheduler, RunsEveryJobEvenUnderStress) {
 		scheduler.add(job);
 	}
 	scheduler.stop(true);
+}
+
+TEST(AJobScheduler, ThrowsOnLessThanOneWorkerConfiguration) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	constexpr unsigned int lessThanOneWorkerConfiguration{ 0 };
+
+	ASSERT_THROW(JobScheduler scheduler(jobMonitor, lessThanOneWorkerConfiguration), std::invalid_argument);
 }
