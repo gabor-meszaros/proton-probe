@@ -8,7 +8,8 @@ using namespace testing;
 TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	JobScheduler scheduler;
 
-	const JobScheduler::JobIdType arbitraryId{ scheduler.add() };
+	NiceMock<MockJob> job;
+	const JobScheduler::JobIdType arbitraryId{ scheduler.add(job) };
 
 	ASSERT_THAT(arbitraryId, Ne(JobScheduler::INVALID_JOB_ID));
 }
@@ -16,8 +17,9 @@ TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 TEST(AJobScheduler, ReturndsUniqueJobIds) {
 	JobScheduler scheduler;
 
-	const JobScheduler::JobIdType firstCallReturn{ scheduler.add() };
-	const JobScheduler::JobIdType secondCallReturn{ scheduler.add() };
+	NiceMock<MockJob> job;
+	const JobScheduler::JobIdType firstCallReturn{ scheduler.add(job) };
+	const JobScheduler::JobIdType secondCallReturn{ scheduler.add(job) };
 
 	ASSERT_THAT(firstCallReturn, Ne(secondCallReturn));
 }

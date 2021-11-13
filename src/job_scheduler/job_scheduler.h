@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "ijob.h"
+
 class JobScheduler
 {
 public:
@@ -7,7 +9,7 @@ public:
 
 	const static JobIdType INVALID_JOB_ID{ -1 };
 
-	JobIdType add();
+	JobIdType add(IJob& job);
 
 private:
 	JobIdType mNextId{ 0 };
