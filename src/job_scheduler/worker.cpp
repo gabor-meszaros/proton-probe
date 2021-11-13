@@ -10,7 +10,7 @@ namespace ProtonProbe
 
 	void Worker::operator()()
 	{
-		while (!mStopWorking || (mStopWorking && mFinishRemainingJobs && !mJobQueue.empty()))
+		while (mWork || (mFinishRemainingJobs && !mJobQueue.empty()))
 		{
 			if (!mJobQueue.empty())
 			{
@@ -24,7 +24,7 @@ namespace ProtonProbe
 
 	void Worker::stop(bool finishRemaininJobs)
 	{
-		mStopWorking = true;
+		mWork = false;
 		mFinishRemainingJobs = finishRemaininJobs;
 	}
 }

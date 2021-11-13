@@ -16,7 +16,7 @@ namespace ProtonProbe
 	private:
 		JobQueue& mJobQueue;
 		IJobMonitor& mJobMonitor;
-		bool mStopWorking{ false };
-		bool mFinishRemainingJobs{ false };
+		bool mWork{ true };
+		bool mFinishRemainingJobs{ true };
 	};
 }
