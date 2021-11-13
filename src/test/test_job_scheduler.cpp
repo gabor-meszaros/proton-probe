@@ -67,7 +67,7 @@ TEST(AJobScheduler, AcceptsDifferentTypeOfJobs) {
 }
 
 TEST(AJobScheduler, MonitorsJobExecutionStart) {
-	MockJobMonitor jobMonitor;
+	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(1);
 
@@ -80,7 +80,7 @@ TEST(AJobScheduler, MonitorsJobExecutionStart) {
 
 TEST(AJobScheduler, RunsEveryJobOnceEvenUnderStress) {
 	constexpr int numberOfJobs{ 10000 };
-	MockJobMonitor jobMonitor;
+	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(numberOfJobs);
 
@@ -104,7 +104,7 @@ TEST(AJobScheduler, ThrowsOnLessThanOneWorkerConfiguration) {
 TEST(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
 	constexpr unsigned int moreThanOneWorkers{ 5 };
 	constexpr int numberOfJobs{ 10000 };
-	MockJobMonitor jobMonitor;
+	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(numberOfJobs);
 
@@ -119,7 +119,7 @@ TEST(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
 }
 
 TEST(AJobScheduler, MonitorsJobExecutionFinish) {
-	MockJobMonitor jobMonitor;
+	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionFinished(_))
 		.Times(1);
 

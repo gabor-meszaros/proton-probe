@@ -17,6 +17,7 @@ namespace ProtonProbe
 				const JobHandle& handle{ mJobQueue.pop()};
 				mJobMonitor.jobExecutionStarted(handle.id);
 				handle.job.execute();
+				mJobMonitor.jobExecutionFinished(handle.id);
 			}
 		}
 	}
