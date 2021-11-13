@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "worker.h"
 
 namespace ProtonProbe

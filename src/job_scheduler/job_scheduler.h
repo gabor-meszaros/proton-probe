@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <thread>
+#include <vector>
 
 #include "ijob.h"
 #include "ijob_monitor.h"
@@ -23,7 +24,7 @@ namespace ProtonProbe
 		IJob::IdType mNextId{ 0 };
 		JobQueue mJobQueue;
 		IJobMonitor& mJobMonitor;
-		Worker mWorker;
-		std::thread mWorkerThread;
+		std::vector<Worker> mWorkers;
+		std::vector<std::thread> mWorkerThreads;
 	};
 }

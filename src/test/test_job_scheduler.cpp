@@ -78,16 +78,16 @@ TEST(AJobScheduler, MonitorsJobExecutionStart) {
 	scheduler.stop(true);
 }
 
-TEST(AJobScheduler, RunsEveryJobEvenUnderStress) {
-	constexpr int numOfJobs{ 10000 };
+TEST(AJobScheduler, RunsEveryJobOnceEvenUnderStress) {
+	constexpr int numberOfJobs{ 10000 };
 	MockJobMonitor jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
-		.Times(numOfJobs);
+		.Times(numberOfJobs);
 
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
-	for (int i{ 0 }; i < numOfJobs; ++i)
+	for (int i{ 0 }; i < numberOfJobs; ++i)
 	{
 		scheduler.add(job);
 	}
@@ -99,4 +99,21 @@ TEST(AJobScheduler, ThrowsOnLessThanOneWorkerConfiguration) {
 	constexpr unsigned int lessThanOneWorkerConfiguration{ 0 };
 
 	ASSERT_THROW(JobScheduler scheduler(jobMonitor, lessThanOneWorkerConfiguration), std::invalid_argument);
+}
+
+TEST(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
+	constexpr unsigned int moreThanOneWorkers{ 5 };
+	constexpr int numberOfJobs{ 10000 };
+	MockJobMonitor jobMonitor;
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
+		.Times(numberOfJobs);
+
+	JobScheduler scheduler(jobMonitor, moreThanOneWorkers);
+
+	NiceMock<MockJob> job;
+	for (int i{ 0 }; i < numberOfJobs; ++i)
+	{
+		scheduler.add(job);
+	}
+	scheduler.stop(true);
 }

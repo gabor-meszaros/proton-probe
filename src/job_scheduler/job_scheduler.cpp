@@ -6,12 +6,19 @@ namespace ProtonProbe
 {
 	JobScheduler::JobScheduler(IJobMonitor& jobMonitor, unsigned int numberOfWorkers)
 		: mJobMonitor{ jobMonitor }
-		, mWorker{ mJobQueue, mJobMonitor }
-		, mWorkerThread{ std::ref(mWorker) }
 	{
 		if (numberOfWorkers < 1)
 		{
 			throw std::invalid_argument("The number of workers must be larger than zero");
+		}
+
+		for (unsigned int i{ 0 }; i < numberOfWorkers; ++i)
+		{
+			mWorkers.emplace_back(mJobQueue, mJobMonitor);
+		}
+		for (auto& worker : mWorkers)
+		{
+			mWorkerThreads.emplace_back(std::ref(worker));
 		}
 	}
 
@@ -25,19 +32,31 @@ namespace ProtonProbe
 
 	void JobScheduler::stop(bool finishRemaininJobs)
 	{
-		mWorker.stop(finishRemaininJobs);
-		if (mWorkerThread.joinable())
+		for (auto& worker : mWorkers)
 		{
-			mWorkerThread.join();
+			worker.stop(finishRemaininJobs);
+		}
+		for (auto& thread : mWorkerThreads)
+		{
+			if (thread.joinable())
+			{
+				thread.join();
+			}
 		}
 	}
 
 	JobScheduler::~JobScheduler()
 	{
-		mWorker.stop(false);
-		if (mWorkerThread.joinable())
+		for (auto& worker : mWorkers)
 		{
-			mWorkerThread.join();
+			worker.stop(false);
+		}
+		for (auto& thread : mWorkerThreads)
+		{
+			if (thread.joinable())
+			{
+				thread.join();
+			}
 		}
 	}
 }
