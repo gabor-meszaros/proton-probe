@@ -64,7 +64,7 @@ namespace ProtonProbe
 		mFinishRemainingJobs = finishRemaininJobs;
 	}
 
-	void Worker::cancel(IJob::IdType job)
+	void Worker::cancel(const IJob::IdType job)
 	{
 		const std::lock_guard<std::mutex> lock(mJobExecutionContexSwitchMutex);
 

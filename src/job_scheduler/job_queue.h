@@ -3,6 +3,8 @@
 #include <queue>
 #include <mutex>
 
+#include "ijob.h"
+
 #include "job_handle.h"
 
 namespace ProtonProbe
@@ -13,6 +15,7 @@ namespace ProtonProbe
 		void enqueue(const JobHandle& item);
 		JobHandle& pop();
 		bool empty();
+		void cancel(const IJob::IdType job);
 
 	private:
 		std::queue<JobHandle> mQueue;

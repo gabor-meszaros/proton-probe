@@ -45,8 +45,9 @@ namespace ProtonProbe
 		}
 	}
 
-	void JobScheduler::cancel(IJob::IdType job)
+	void JobScheduler::cancel(const IJob::IdType job)
 	{
+		mJobQueue.cancel(job);
 		for (auto& worker : mWorkers)
 		{
 			worker.cancel(job);
