@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <job_scheduler/job_scheduler.h>
+#include "mock_job.h"
 
 using namespace testing;
 
@@ -19,4 +20,14 @@ TEST(AJobScheduler, ReturndsUniqueJobIds) {
 	const JobScheduler::JobIdType secondCallReturn{ scheduler.add() };
 
 	ASSERT_THAT(firstCallReturn, Ne(secondCallReturn));
+}
+
+TEST(AJobScheduler, ExecutesTheReceivedJob) {
+	JobScheduler scheduler;
+
+	MockJob job;
+	EXPECT_CALL(job, execute())
+		.Times(1);
+	
+	scheduler.add(job);
 }
