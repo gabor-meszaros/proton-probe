@@ -2,5 +2,5 @@
 
 JobScheduler::JobIdType JobScheduler::add()
 {
-	return JobIdType(42);
+	return mNextId++;
 }

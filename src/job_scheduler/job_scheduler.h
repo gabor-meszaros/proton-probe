@@ -8,4 +8,7 @@ public:
 	const static JobIdType INVALID_JOB_ID{ -1 };
 
 	JobIdType add();
+
+private:
+	JobIdType mNextId{ 0 };
 };
