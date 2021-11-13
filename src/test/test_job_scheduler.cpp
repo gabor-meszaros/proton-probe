@@ -159,3 +159,18 @@ TEST(AJobScheduler, MonitorsJobExecutionRetries) {
 	scheduler.add(job);
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, RetriesFailedJobExecutionFiveTimes) {
+	constexpr int numberOfRetries{ 5 };
+	NiceMock<MockJobMonitor> jobMonitor;
+	EXPECT_CALL(jobMonitor, jobRetryOnFailure(_))
+		.Times(numberOfRetries);
+
+	JobScheduler scheduler(jobMonitor);
+
+	NiceMock<MockJob> job;
+	EXPECT_CALL(job, execute())
+		.WillRepeatedly(Return(false));
+	scheduler.add(job);
+	scheduler.stop(true);
+}
