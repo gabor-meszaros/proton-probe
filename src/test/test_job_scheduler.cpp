@@ -6,6 +6,14 @@
 using namespace testing;
 using namespace ProtonProbe;
 
+class ProtonJob : public IJob
+{
+	// Inherited via IJob
+	virtual void execute() override
+	{
+	}
+};
+
 TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	JobScheduler scheduler;
 
@@ -33,4 +41,14 @@ TEST(AJobScheduler, ExecutesTheReceivedJob) {
 		.Times(1);
 	
 	scheduler.add(job);
+}
+
+TEST(AJobScheduler, AcceptsDifferentTypeOfJobs) {
+	JobScheduler scheduler;
+
+	NiceMock<MockJob> aJobWithTypeA;
+	ProtonJob aJobWithTypeB;
+
+	ASSERT_NO_THROW(scheduler.add(aJobWithTypeA));
+	ASSERT_NO_THROW(scheduler.add(aJobWithTypeB));
 }
