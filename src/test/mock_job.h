@@ -4,7 +4,7 @@
 
 #include <job_scheduler/ijob.h>
 
-class MockJob : public IJob {
+class MockJob : public ProtonProbe::IJob {
 public:
 	MOCK_METHOD(void, execute, (), (override));
 };

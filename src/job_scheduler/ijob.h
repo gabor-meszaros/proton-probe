@@ -1,8 +1,11 @@
 #pragma once
 
-class IJob
+namespace ProtonProbe
 {
-public:
-	virtual ~IJob() {}
-	virtual void execute() = 0;
-};
+	class IJob
+	{
+	public:
+		virtual ~IJob() {}
+		virtual void execute() = 0;
+	};
+}

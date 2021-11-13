@@ -1,7 +1,10 @@
 ﻿#include "job_scheduler.h"
 
-JobScheduler::JobIdType JobScheduler::add(IJob& job)
+namespace ProtonProbe
 {
-	job.execute();
-	return mNextId++;
+	JobScheduler::JobIdType JobScheduler::add(IJob& job)
+	{
+		job.execute();
+		return mNextId++;
+	}
 }

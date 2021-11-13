@@ -4,6 +4,7 @@
 #include "mock_job.h"
 
 using namespace testing;
+using namespace ProtonProbe;
 
 TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	JobScheduler scheduler;
