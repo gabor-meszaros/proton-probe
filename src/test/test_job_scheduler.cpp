@@ -20,6 +20,16 @@ class ProtonJob : public IJob
 	}
 };
 
+class InfiniteCancellableJob : public IJob
+{
+	// Inherited via IJob
+	virtual bool execute() override
+	{
+		while (true) {}
+		return true;
+	}
+};
+
 TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	NiceMock<MockJobMonitor> jobMonitor;
 	JobScheduler scheduler(jobMonitor);
@@ -187,5 +197,18 @@ TEST(AJobScheduler, MonitorsJobExecutionFailure) {
 	EXPECT_CALL(job, execute())
 		.WillRepeatedly(Return(false));
 	scheduler.add(job);
+	scheduler.stop(true);
+}
+
+TEST(AJobScheduler, CanCancelJobsWhileTheyAreExecuted) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
+		.Times(1);
+
+	JobScheduler scheduler(jobMonitor);
+
+	InfiniteCancellableJob jobToCancel;
+	const IJob::IdType idToCancel{ scheduler.add(jobToCancel) };
+	scheduler.cancel(idToCancel);
 	scheduler.stop(true);
 }
