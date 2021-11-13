@@ -215,3 +215,22 @@ TEST(AJobScheduler, CanCancelJobsWhileTheyAreExecuted) {
 	scheduler.cancel(idToCancel);
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, CanCancelANotYetExecutedJob) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
+		.Times(1);
+
+	JobScheduler scheduler(jobMonitor, 1);
+
+	InfiniteCancellableJob jobForKeepingTheWorkerBusy;
+	const IJob::IdType jobForWorker{ scheduler.add(jobForKeepingTheWorkerBusy) };
+	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait until the worker picks it up
+	NiceMock<MockJob> jobForTheQueue;
+	EXPECT_CALL(jobForTheQueue, execute(_))
+		.Times(0);
+	const IJob::IdType jobForQueue{ scheduler.add(jobForTheQueue) };
+	scheduler.cancel(jobForQueue);
+	scheduler.cancel(jobForWorker);
+	scheduler.stop(true);
+}
