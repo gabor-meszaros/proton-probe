@@ -11,3 +11,12 @@ TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 
 	ASSERT_THAT(arbitraryId, Ne(JobScheduler::INVALID_JOB_ID));
 }
+
+TEST(AJobScheduler, ReturndsUniqueJobIds) {
+	JobScheduler scheduler;
+
+	const JobScheduler::JobIdType firstCallReturn{ scheduler.add() };
+	const JobScheduler::JobIdType secondCallReturn{ scheduler.add() };
+
+	ASSERT_THAT(firstCallReturn, Ne(secondCallReturn));
+}
