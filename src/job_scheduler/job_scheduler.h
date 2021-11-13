@@ -1,19 +1,20 @@
 ﻿#pragma once
 
 #include "ijob.h"
+#include "ijob_monitor.h"
 
 namespace ProtonProbe
 {
 	class JobScheduler
 	{
 	public:
-		typedef int JobIdType;
+		const static IJob::IdType INVALID_JOB_ID{ -1 };
 
-		const static JobIdType INVALID_JOB_ID{ -1 };
-
-		JobIdType add(IJob& job);
+		JobScheduler(IJobMonitor& monitor);
+		IJob::IdType add(IJob& job);
 
 	private:
-		JobIdType mNextId{ 0 };
+		IJob::IdType mNextId{ 0 };
+		IJobMonitor& mMonitor;
 	};
 }

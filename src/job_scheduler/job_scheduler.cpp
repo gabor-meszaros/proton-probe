@@ -2,9 +2,16 @@
 
 namespace ProtonProbe
 {
-	JobScheduler::JobIdType JobScheduler::add(IJob& job)
+	JobScheduler::JobScheduler(IJobMonitor& monitor)
+		: mMonitor{ monitor }
 	{
+	}
+
+	IJob::IdType JobScheduler::add(IJob& job)
+	{
+		const IJob::IdType id{ mNextId++ };
+		mMonitor.jobExecutionStarted(id);
 		job.execute();
-		return mNextId++;
+		return id;
 	}
 }
