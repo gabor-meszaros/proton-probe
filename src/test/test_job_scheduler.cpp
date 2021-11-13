@@ -14,8 +14,9 @@ using namespace ProtonProbe;
 class ProtonJob : public IJob
 {
 	// Inherited via IJob
-	virtual void execute() override
+	virtual bool execute() override
 	{
+		return true; // We always succeed :)
 	}
 };
 
@@ -138,6 +139,8 @@ TEST(AJobScheduler, MonitorsJobExecutionSuccess) {
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
+	EXPECT_CALL(job, execute())
+		.WillRepeatedly(Return(true));
 	scheduler.add(job);
 	scheduler.stop(true);
 }
