@@ -49,7 +49,8 @@ TEST(AJobScheduler, ExecutesTheReceivedJob) {
 
 	MockJob job;
 	EXPECT_CALL(job, execute())
-		.Times(1);
+		.Times(1)
+		.WillOnce(Return(true));
 
 	scheduler.add(job);
 	scheduler.stop(true);

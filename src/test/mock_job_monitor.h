@@ -9,4 +9,5 @@ public:
 	MOCK_METHOD(void, jobExecutionStarted, (const ProtonProbe::IJob::IdType job), (override));
 	MOCK_METHOD(void, jobExecutionFinished, (const ProtonProbe::IJob::IdType job), (override));
 	MOCK_METHOD(void, jobSucceed, (const ProtonProbe::IJob::IdType job), (override));
+	MOCK_METHOD(void, jobRetryOnFailure, (const ProtonProbe::IJob::IdType job), (override));
 };

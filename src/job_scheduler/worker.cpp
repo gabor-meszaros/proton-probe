@@ -20,6 +20,14 @@ namespace ProtonProbe
 				{
 					mJobMonitor.jobSucceed(handle.id);
 				}
+				else
+				{
+					mJobMonitor.jobRetryOnFailure(handle.id);
+					if (handle.job.execute())
+					{
+						mJobMonitor.jobSucceed(handle.id);
+					}
+				}
 				mJobMonitor.jobExecutionFinished(handle.id);
 			}
 		}
