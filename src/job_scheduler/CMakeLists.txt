@@ -3,5 +3,6 @@
 add_library(
 	job_scheduler_lib STATIC
 	"job_scheduler.cpp"
+	"job_handle.cpp"
 )
 

@@ -22,7 +22,7 @@ TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	NiceMock<MockJob> job;
 	const IJob::IdType arbitraryId{ scheduler.add(job) };
 
-	ASSERT_THAT(arbitraryId, Ne(JobScheduler::INVALID_JOB_ID));
+	ASSERT_THAT(arbitraryId, Ne(IJob::INVALID_JOB_ID));
 }
 
 TEST(AJobScheduler, ReturndsUniqueJobIds) {
