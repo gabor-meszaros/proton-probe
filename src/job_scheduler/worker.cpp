@@ -28,6 +28,10 @@ namespace ProtonProbe
 						mJobMonitor.jobRetryOnFailure(handle.id);
 					}
 				} while (numberOfRetries++ != MAX_NUMBER_OF_RETRIES_ON_FAILURE);
+				if (MAX_NUMBER_OF_RETRIES_ON_FAILURE < numberOfRetries)
+				{
+					mJobMonitor.jobFailed(handle.id);
+				}
 				mJobMonitor.jobExecutionFinished(handle.id);
 			}
 		}
