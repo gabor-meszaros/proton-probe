@@ -117,3 +117,15 @@ TEST(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
 	}
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, MonitorsJobExecutionFinish) {
+	MockJobMonitor jobMonitor;
+	EXPECT_CALL(jobMonitor, jobExecutionFinished(_))
+		.Times(1);
+
+	JobScheduler scheduler(jobMonitor);
+
+	NiceMock<MockJob> job;
+	scheduler.add(job);
+	scheduler.stop(true);
+}
