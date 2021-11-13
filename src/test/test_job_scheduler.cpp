@@ -45,7 +45,7 @@ TEST(AJobScheduler, ExecutesTheReceivedJob) {
 	MockJob job;
 	EXPECT_CALL(job, execute())
 		.Times(1);
-	
+
 	scheduler.add(job);
 	scheduler.stop(true);
 }
@@ -66,10 +66,26 @@ TEST(AJobScheduler, MonitorsJobExecutionStart) {
 	MockJobMonitor jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(1);
-	
+
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
 	scheduler.add(job);
+	scheduler.stop(true);
+}
+
+TEST(AJobScheduler, RunsEveryJobEvenUnderStress) {
+	constexpr int numOfJobs{ 10000 };
+	MockJobMonitor jobMonitor;
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
+		.Times(numOfJobs);
+
+	JobScheduler scheduler(jobMonitor);
+
+	NiceMock<MockJob> job;
+	for (int i{ 0 }; i < numOfJobs; ++i)
+	{
+		scheduler.add(job);
+	}
 	scheduler.stop(true);
 }
