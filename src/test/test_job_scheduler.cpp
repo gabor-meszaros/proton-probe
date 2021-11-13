@@ -23,6 +23,7 @@ TEST(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	const IJob::IdType arbitraryId{ scheduler.add(job) };
 
 	ASSERT_THAT(arbitraryId, Ne(IJob::INVALID_JOB_ID));
+	scheduler.stop(true);
 }
 
 TEST(AJobScheduler, ReturndsUniqueJobIds) {
@@ -34,6 +35,7 @@ TEST(AJobScheduler, ReturndsUniqueJobIds) {
 	const IJob::IdType secondCallReturn{ scheduler.add(job) };
 
 	ASSERT_THAT(firstCallReturn, Ne(secondCallReturn));
+	scheduler.stop(true);
 }
 
 TEST(AJobScheduler, ExecutesTheReceivedJob) {
@@ -45,6 +47,7 @@ TEST(AJobScheduler, ExecutesTheReceivedJob) {
 		.Times(1);
 	
 	scheduler.add(job);
+	scheduler.stop(true);
 }
 
 TEST(AJobScheduler, AcceptsDifferentTypeOfJobs) {
@@ -56,6 +59,7 @@ TEST(AJobScheduler, AcceptsDifferentTypeOfJobs) {
 
 	ASSERT_NO_THROW(scheduler.add(aJobWithTypeA));
 	ASSERT_NO_THROW(scheduler.add(aJobWithTypeB));
+	scheduler.stop(true);
 }
 
 TEST(AJobScheduler, MonitorsJobExecutionStart) {
@@ -67,4 +71,5 @@ TEST(AJobScheduler, MonitorsJobExecutionStart) {
 
 	NiceMock<MockJob> job;
 	scheduler.add(job);
+	scheduler.stop(true);
 }
