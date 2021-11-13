@@ -1,4 +1,6 @@
+#include <chrono>
 #include <stdexcept>
+#include <thread>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -14,7 +16,7 @@ using namespace ProtonProbe;
 class ProtonJob : public IJob
 {
 	// Inherited via IJob
-	virtual bool execute() override
+	virtual bool execute(const bool& stopExecution) override
 	{
 		return true; // We always succeed :)
 	}
@@ -23,9 +25,9 @@ class ProtonJob : public IJob
 class InfiniteCancellableJob : public IJob
 {
 	// Inherited via IJob
-	virtual bool execute() override
+	virtual bool execute(const bool& stopExecution) override
 	{
-		while (true) {}
+		while (!stopExecution) {}
 		return true;
 	}
 };
@@ -58,7 +60,7 @@ TEST(AJobScheduler, ExecutesTheReceivedJob) {
 	JobScheduler scheduler(jobMonitor);
 
 	MockJob job;
-	EXPECT_CALL(job, execute())
+	EXPECT_CALL(job, execute(_))
 		.Times(1)
 		.WillOnce(Return(true));
 
@@ -150,7 +152,7 @@ TEST(AJobScheduler, MonitorsJobExecutionSuccess) {
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
-	EXPECT_CALL(job, execute())
+	EXPECT_CALL(job, execute(_))
 		.WillRepeatedly(Return(true));
 	scheduler.add(job);
 	scheduler.stop(true);
@@ -164,7 +166,7 @@ TEST(AJobScheduler, MonitorsJobExecutionRetries) {
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
-	EXPECT_CALL(job, execute())
+	EXPECT_CALL(job, execute(_))
 		.WillRepeatedly(Return(false));
 	scheduler.add(job);
 	scheduler.stop(true);
@@ -179,7 +181,7 @@ TEST(AJobScheduler, RetriesFailedJobExecutionFiveTimes) {
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
-	EXPECT_CALL(job, execute())
+	EXPECT_CALL(job, execute(_))
 		.Times(numberOfRetries + 1)
 		.WillRepeatedly(Return(false));
 	scheduler.add(job);
@@ -194,7 +196,7 @@ TEST(AJobScheduler, MonitorsJobExecutionFailure) {
 	JobScheduler scheduler(jobMonitor);
 
 	NiceMock<MockJob> job;
-	EXPECT_CALL(job, execute())
+	EXPECT_CALL(job, execute(_))
 		.WillRepeatedly(Return(false));
 	scheduler.add(job);
 	scheduler.stop(true);
@@ -209,6 +211,7 @@ TEST(AJobScheduler, CanCancelJobsWhileTheyAreExecuted) {
 
 	InfiniteCancellableJob jobToCancel;
 	const IJob::IdType idToCancel{ scheduler.add(jobToCancel) };
+	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait until the worker picks it up
 	scheduler.cancel(idToCancel);
 	scheduler.stop(true);
 }

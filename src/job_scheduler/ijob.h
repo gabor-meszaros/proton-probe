@@ -9,6 +9,6 @@ namespace ProtonProbe
 		const static IJob::IdType INVALID_JOB_ID{ -1 };
 
 		virtual ~IJob() {}
-		virtual bool execute() = 0;
+		virtual bool execute(const bool& stopExecution) = 0;
 	};
 }

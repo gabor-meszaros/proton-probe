@@ -6,5 +6,5 @@
 
 class MockJob : public ProtonProbe::IJob {
 public:
-	MOCK_METHOD(bool, execute, (), (override));
+	MOCK_METHOD(bool, execute, (const bool& stopExecution), (override));
 };

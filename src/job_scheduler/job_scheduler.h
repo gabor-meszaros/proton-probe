@@ -18,6 +18,7 @@ namespace ProtonProbe
 		JobScheduler(IJobMonitor& jobMonitor, unsigned int numberOfWorkers = 1);
 		IJob::IdType add(IJob& job);
 		void stop(bool finishRemaininJobs = true);
+		void cancel(IJob::IdType job);
 		~JobScheduler();
 
 	private:

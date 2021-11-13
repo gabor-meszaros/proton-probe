@@ -2,6 +2,17 @@
 
 namespace ProtonProbe
 {
+	Worker::Worker(const Worker& other)
+		: mJobQueue{ other.mJobQueue }
+		, mJobMonitor{ other.mJobMonitor }
+		, mWork{ other.mWork }
+		, mFinishRemainingJobs{ other.mFinishRemainingJobs }
+	{
+		std::unique_lock<std::mutex> lock_other(other.mJobExecutionContexSwitchMutex);
+		mCurrentJob = other.mCurrentJob;
+		mCancelCurrentJob = other.mCancelCurrentJob;
+	}
+
 	Worker::Worker(JobQueue& jobQueue, IJobMonitor& jobMonitor)
 		: mJobQueue{ jobQueue }
 		, mJobMonitor{ jobMonitor }
@@ -15,10 +26,15 @@ namespace ProtonProbe
 			if (!mJobQueue.empty())
 			{
 				const JobHandle& handle{ mJobQueue.pop() };
+				{
+					const std::lock_guard<std::mutex> lock(mJobExecutionContexSwitchMutex);
+					mCurrentJob = handle.id;
+					mCancelCurrentJob = false;
+				}
 				mJobMonitor.jobExecutionStarted(handle.id);
 				int numberOfRetries{ 0 };
 				do {
-					if (handle.job.execute())
+					if (handle.job.execute(mCancelCurrentJob))
 					{
 						mJobMonitor.jobSucceed(handle.id);
 						break;
@@ -33,6 +49,11 @@ namespace ProtonProbe
 					mJobMonitor.jobFailed(handle.id);
 				}
 				mJobMonitor.jobExecutionFinished(handle.id);
+				{
+					const std::lock_guard<std::mutex> lock(mJobExecutionContexSwitchMutex);
+					mCurrentJob = IJob::INVALID_JOB_ID;
+					mCancelCurrentJob = false;
+				}
 			}
 		}
 	}
@@ -41,5 +62,15 @@ namespace ProtonProbe
 	{
 		mWork = false;
 		mFinishRemainingJobs = finishRemaininJobs;
+	}
+
+	void Worker::cancel(IJob::IdType job)
+	{
+		const std::lock_guard<std::mutex> lock(mJobExecutionContexSwitchMutex);
+
+		if (mCurrentJob == job)
+		{
+			mCancelCurrentJob = true;
+		}
 	}
 }
