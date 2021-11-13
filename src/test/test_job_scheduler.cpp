@@ -129,3 +129,15 @@ TEST(AJobScheduler, MonitorsJobExecutionFinish) {
 	scheduler.add(job);
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, MonitorsJobExecutionSuccess) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	EXPECT_CALL(jobMonitor, jobSucceed(_))
+		.Times(1);
+
+	JobScheduler scheduler(jobMonitor);
+
+	NiceMock<MockJob> job;
+	scheduler.add(job);
+	scheduler.stop(true);
+}
