@@ -35,6 +35,10 @@ class InfiniteCancellableJob : public IJob
 class AJobScheduler : public ::testing::Test
 {
 protected:
+	static const unsigned int singleWorker{ 1 };
+	static const unsigned int moreThanOneWorkers{ 5 };
+	NiceMock<MockJobMonitor> jobMonitor;
+
 	void waitUntilEveryJobWasProcessedAndStop(JobScheduler& scheduler)
 	{
 		constexpr bool finishJobsBeforeStop{ true };
@@ -43,8 +47,7 @@ protected:
 };
 
 TEST_F(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	const IJob::IdType arbitraryId{ scheduler.add(job) };
@@ -54,8 +57,7 @@ TEST_F(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 }
 
 TEST_F(AJobScheduler, ReturnsUniqueJobIds) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	const IJob::IdType firstCallReturn{ scheduler.add(job) };
@@ -66,8 +68,7 @@ TEST_F(AJobScheduler, ReturnsUniqueJobIds) {
 }
 
 TEST_F(AJobScheduler, ExecutesTheReceivedJob) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	MockJob job;
 	EXPECT_CALL(job, execute(_))
@@ -79,8 +80,7 @@ TEST_F(AJobScheduler, ExecutesTheReceivedJob) {
 }
 
 TEST_F(AJobScheduler, AcceptsDifferentTypeOfJobs) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> aJobWithTypeA;
 	ProtonJob aJobWithTypeB;
@@ -91,11 +91,10 @@ TEST_F(AJobScheduler, AcceptsDifferentTypeOfJobs) {
 }
 
 TEST_F(AJobScheduler, MonitorsJobExecutionStart) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(1);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	scheduler.add(job);
@@ -104,11 +103,10 @@ TEST_F(AJobScheduler, MonitorsJobExecutionStart) {
 
 TEST_F(AJobScheduler, RunsEveryJobOnceEvenUnderStress) {
 	constexpr int numberOfJobs{ 10000 };
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(numberOfJobs);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	for (int i{ 0 }; i < numberOfJobs; ++i)
@@ -119,16 +117,13 @@ TEST_F(AJobScheduler, RunsEveryJobOnceEvenUnderStress) {
 }
 
 TEST_F(AJobScheduler, ThrowsOnLessThanOneWorkerConfiguration) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	constexpr unsigned int lessThanOneWorkerConfiguration{ 0 };
 
 	ASSERT_THROW(JobScheduler scheduler(jobMonitor, lessThanOneWorkerConfiguration), std::invalid_argument);
 }
 
 TEST_F(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
-	constexpr unsigned int moreThanOneWorkers{ 5 };
 	constexpr int numberOfJobs{ 10000 };
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(numberOfJobs);
 
@@ -143,11 +138,10 @@ TEST_F(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
 }
 
 TEST_F(AJobScheduler, MonitorsJobExecutionFinish) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionFinished(_))
 		.Times(1);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	scheduler.add(job);
@@ -155,11 +149,10 @@ TEST_F(AJobScheduler, MonitorsJobExecutionFinish) {
 }
 
 TEST_F(AJobScheduler, MonitorsJobExecutionSuccess) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobSucceed(_))
 		.Times(1);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	EXPECT_CALL(job, execute(_))
@@ -169,11 +162,10 @@ TEST_F(AJobScheduler, MonitorsJobExecutionSuccess) {
 }
 
 TEST_F(AJobScheduler, MonitorsJobExecutionRetries) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobRetryOnFailure(_))
 		.Times(AtLeast(1));
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	EXPECT_CALL(job, execute(_))
@@ -184,11 +176,10 @@ TEST_F(AJobScheduler, MonitorsJobExecutionRetries) {
 
 TEST_F(AJobScheduler, RetriesFailedJobExecutionFiveTimes) {
 	constexpr int numberOfRetries{ 5 };
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobRetryOnFailure(_))
 		.Times(numberOfRetries);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	EXPECT_CALL(job, execute(_))
@@ -199,11 +190,10 @@ TEST_F(AJobScheduler, RetriesFailedJobExecutionFiveTimes) {
 }
 
 TEST_F(AJobScheduler, MonitorsJobExecutionFailure) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobFailed(_))
 		.Times(1);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	NiceMock<MockJob> job;
 	EXPECT_CALL(job, execute(_))
@@ -213,11 +203,10 @@ TEST_F(AJobScheduler, MonitorsJobExecutionFailure) {
 }
 
 TEST_F(AJobScheduler, CanCancelJobsWhileTheyAreExecuted) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(1);
 
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	InfiniteCancellableJob jobToCancel;
 	const IJob::IdType idToCancel{ scheduler.add(jobToCancel) };
@@ -227,11 +216,10 @@ TEST_F(AJobScheduler, CanCancelJobsWhileTheyAreExecuted) {
 }
 
 TEST_F(AJobScheduler, CanCancelANotYetExecutedJob) {
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(1);
 
-	JobScheduler scheduler(jobMonitor, 1);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	InfiniteCancellableJob jobForKeepingTheWorkerBusy;
 	const IJob::IdType jobForWorker{ scheduler.add(jobForKeepingTheWorkerBusy) };
@@ -246,9 +234,7 @@ TEST_F(AJobScheduler, CanCancelANotYetExecutedJob) {
 }
 
 TEST_F(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
-	constexpr unsigned int moreThanOneWorkers{ 5 };
 	constexpr int numberOfJobs{ 150 };
-	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(numberOfJobs);
 
@@ -264,8 +250,7 @@ TEST_F(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
 }
 
 TEST_F(AJobScheduler, ExecutesTheJobsInFifoOrder) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor, 1);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	InfiniteCancellableJob jobForBlockingUntilFullTestSetup;
 	const IJob::IdType blockingJob{ scheduler.add(jobForBlockingUntilFullTestSetup) };
@@ -289,8 +274,7 @@ TEST_F(AJobScheduler, ExecutesTheJobsInFifoOrder) {
 }
 
 TEST_F(AJobScheduler, CanTellIfAJobHasBeenProcessed) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor, 1);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	InfiniteCancellableJob jobForKeepingTheWorkerBusy;
 	const IJob::IdType jobForWorker{ scheduler.add(jobForKeepingTheWorkerBusy) };
@@ -310,15 +294,13 @@ TEST_F(AJobScheduler, CanTellIfAJobHasBeenProcessed) {
 }
 
 TEST_F(AJobScheduler, ThrowsOnCancellingAnInvalidJobId) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	ASSERT_THROW(scheduler.cancel(IJob::INVALID_JOB_ID), std::invalid_argument);
 }
 
 TEST_F(AJobScheduler, ThrowsOnCheckingJobProcessedStateWithInvalidJobId) {
-	NiceMock<MockJobMonitor> jobMonitor;
-	JobScheduler scheduler(jobMonitor);
+	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	ASSERT_THROW(scheduler.hasProcessed(IJob::INVALID_JOB_ID), std::invalid_argument);
 }
