@@ -59,5 +59,6 @@ namespace ProtonProbe
 		IJobMonitor& mJobMonitor;
 		std::vector<Worker> mWorkers;
 		std::vector<std::thread> mWorkerThreads;
+		bool mStopped{ false };
 	};
 }

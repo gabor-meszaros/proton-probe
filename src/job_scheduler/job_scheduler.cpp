@@ -24,6 +24,10 @@ namespace ProtonProbe
 
 	IJob::IdType JobScheduler::add(IJob& job)
 	{
+		if (mStopped)
+		{
+			return IJob::INVALID_JOB_ID;
+		}
 		const IJob::IdType id{ mNextId++ };
 		JobHandle item{ id, job };
 		mJobQueue.enqueue(item);
@@ -32,6 +36,7 @@ namespace ProtonProbe
 
 	void JobScheduler::stop(bool finishRemaininJobs)
 	{
+		mStopped = true;
 		for (auto& worker : mWorkers)
 		{
 			worker.stop(finishRemaininJobs);
