@@ -234,3 +234,21 @@ TEST(AJobScheduler, CanCancelANotYetExecutedJob) {
 	scheduler.cancel(jobForWorker);
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
+	constexpr unsigned int moreThanOneWorkers{ 5 };
+	constexpr int numberOfJobs{ 1000 };
+	NiceMock<MockJobMonitor> jobMonitor;
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
+		.Times(numberOfJobs);
+
+	JobScheduler scheduler(jobMonitor, moreThanOneWorkers);
+
+	NiceMock<MockJob> job;
+	for (int i{ 0 }; i < numberOfJobs; ++i)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		scheduler.add(job);
+	}
+	scheduler.stop(true);
+}
