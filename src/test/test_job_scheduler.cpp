@@ -319,3 +319,12 @@ TEST_F(AJobScheduler, ThrowsOnCheckingJobProcessedStateWithInvalidJobId) {
 
 	ASSERT_THROW(scheduler.hasProcessed(IJob::INVALID_JOB_ID), std::invalid_argument);
 }
+
+TEST_F(AJobScheduler, AddFunctionReturnsInvalidJobIdAfterStop) {
+	JobScheduler stoppedScheduler(jobMonitor, singleWorker);
+	stoppedScheduler.stop(false /* Do not process the remainig jobs in the queue */);
+
+	const IJob::IdType stoppedSchedulerAddJobId{ stoppedScheduler.add(arbitraryJob) };
+
+	ASSERT_THAT(stoppedSchedulerAddJobId, Eq(IJob::INVALID_JOB_ID));
+}
