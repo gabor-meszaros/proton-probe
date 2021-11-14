@@ -27,7 +27,10 @@ class InfiniteCancellableJob : public IJob
 	// Inherited via IJob
 	virtual bool execute(const bool& stopExecution) override
 	{
-		while (!stopExecution) {}
+		while (!stopExecution)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		}
 		return true;
 	}
 };
