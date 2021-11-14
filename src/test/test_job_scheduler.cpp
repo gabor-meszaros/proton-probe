@@ -62,6 +62,7 @@ TEST_F(AJobScheduler, ReturnsValidIdWhenAddingAJobWithoutError) {
 	const IJob::IdType arbitraryId{ scheduler.add(arbitraryJob) };
 
 	ASSERT_THAT(arbitraryId, Ne(IJob::INVALID_JOB_ID));
+
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -72,6 +73,7 @@ TEST_F(AJobScheduler, ReturnsUniqueJobIds) {
 	const IJob::IdType secondCallReturn{ scheduler.add(arbitraryJob) };
 
 	ASSERT_THAT(firstCallReturn, Ne(secondCallReturn));
+
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -84,6 +86,7 @@ TEST_F(AJobScheduler, ExecutesTheReceivedJob) {
 		.WillOnce(Return(true));
 
 	scheduler.add(aJobHasToBeExecuted);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -95,6 +98,7 @@ TEST_F(AJobScheduler, AcceptsDifferentTypeOfJobs) {
 
 	ASSERT_NO_THROW(scheduler.add(aJobWithTypeA));
 	ASSERT_NO_THROW(scheduler.add(aJobWithTypeB));
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -105,6 +109,7 @@ TEST_F(AJobScheduler, MonitorsJobExecutionStart) {
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	scheduler.add(arbitraryJob);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -114,11 +119,12 @@ TEST_F(AJobScheduler, RunsEveryJobOnceEvenUnderStress) {
 		.Times(numberOfJobs);
 
 	JobScheduler scheduler(jobMonitor, singleWorker);
-
+		
 	for (int i{ 0 }; i < numberOfJobs; ++i)
 	{
 		scheduler.add(arbitraryJob);
 	}
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -139,6 +145,7 @@ TEST_F(AJobScheduler, RunsEveryJobOnceWithMultipleWorkersEvenUnderStress) {
 	{
 		scheduler.add(arbitraryJob);
 	}
+
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -149,6 +156,7 @@ TEST_F(AJobScheduler, MonitorsJobExecutionFinish) {
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	scheduler.add(arbitraryJob);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -161,7 +169,9 @@ TEST_F(AJobScheduler, MonitorsJobExecutionSuccess) {
 	NiceMock<MockJob> nonFailingJob;
 	EXPECT_CALL(nonFailingJob, execute(_))
 		.WillRepeatedly(Return(true));
+	
 	scheduler.add(nonFailingJob);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -174,7 +184,9 @@ TEST_F(AJobScheduler, MonitorsJobExecutionRetries) {
 	NiceMock<MockJob> failingJob;
 	EXPECT_CALL(failingJob, execute(_))
 		.WillRepeatedly(Return(false));
+	
 	scheduler.add(failingJob);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -189,7 +201,9 @@ TEST_F(AJobScheduler, RetriesFailedJobExecutionFiveTimes) {
 	EXPECT_CALL(failingJob, execute(_))
 		.Times(numberOfRetries + 1)
 		.WillRepeatedly(Return(false));
+	
 	scheduler.add(failingJob);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -202,7 +216,9 @@ TEST_F(AJobScheduler, MonitorsJobExecutionFailure) {
 	NiceMock<MockJob> failingJob;
 	EXPECT_CALL(failingJob, execute(_))
 		.WillRepeatedly(Return(false));
+	
 	scheduler.add(failingJob);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -213,7 +229,9 @@ TEST_F(AJobScheduler, CanCancelJobsWhileTheyAreExecuted) {
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	const IJob::IdType jobTheWorkerIsWorkingOn{ addInfiniteCancellableJob(scheduler) };
+	
 	scheduler.cancel(jobTheWorkerIsWorkingOn);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -224,12 +242,16 @@ TEST_F(AJobScheduler, CanCancelANotYetExecutedJob) {
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
 	const IJob::IdType jobForWorker{ addInfiniteCancellableJob(scheduler) };
+	
 	NiceMock<MockJob> jobForTheQueue;
 	EXPECT_CALL(jobForTheQueue, execute(_))
 		.Times(0);
+	
 	const IJob::IdType jobForQueue{ scheduler.add(jobForTheQueue) };
+	
 	scheduler.cancel(jobForQueue);
 	scheduler.cancel(jobForWorker);
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
@@ -245,13 +267,14 @@ TEST_F(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		scheduler.add(arbitraryJob);
 	}
+	
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
 
 TEST_F(AJobScheduler, ExecutesTheJobsInFifoOrder) {
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
-	const IJob::IdType blockingJob{ addInfiniteCancellableJob(scheduler) };
+	const IJob::IdType blockingJobUntilFinishingSetup{ addInfiniteCancellableJob(scheduler) };
 	
 	const IJob::IdType firstJobId{ scheduler.add(arbitraryJob) };
 	const IJob::IdType secondJobId{ scheduler.add(arbitraryJob) };
@@ -264,7 +287,7 @@ TEST_F(AJobScheduler, ExecutesTheJobsInFifoOrder) {
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(thirdJobId))
 		.Times(1);
 
-	scheduler.cancel(blockingJob);
+	scheduler.cancel(blockingJobUntilFinishingSetup);
 
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
@@ -272,17 +295,16 @@ TEST_F(AJobScheduler, ExecutesTheJobsInFifoOrder) {
 TEST_F(AJobScheduler, CanTellIfAJobHasBeenProcessed) {
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
-	const IJob::IdType jobForWorker{ addInfiniteCancellableJob(scheduler) };
-	
+	const IJob::IdType blockingJob{ addInfiniteCancellableJob(scheduler) };
 	const IJob::IdType jobForQueue{ scheduler.add(arbitraryJob) };
 
-	ASSERT_THAT(scheduler.hasProcessed(jobForWorker), Eq(false));
+	ASSERT_THAT(scheduler.hasProcessed(blockingJob), Eq(false));
 	ASSERT_THAT(scheduler.hasProcessed(jobForQueue), Eq(false));
 
-	scheduler.cancel(jobForWorker);
+	scheduler.cancel(blockingJob);
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 
-	ASSERT_THAT(scheduler.hasProcessed(jobForWorker), Eq(true));
+	ASSERT_THAT(scheduler.hasProcessed(blockingJob), Eq(true));
 	ASSERT_THAT(scheduler.hasProcessed(jobForQueue), Eq(true));
 }
 
