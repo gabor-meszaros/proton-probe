@@ -16,7 +16,7 @@ using namespace ProtonProbe;
 class ProtonJob : public IJob
 {
 	// Inherited via IJob
-	virtual bool execute(const bool& stopExecution) override
+	virtual bool execute(const bool& stopExecution /* We never stop */) override
 	{
 		return true; // We always succeed :)
 	}
