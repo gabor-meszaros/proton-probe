@@ -237,7 +237,7 @@ TEST(AJobScheduler, CanCancelANotYetExecutedJob) {
 
 TEST(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
 	constexpr unsigned int moreThanOneWorkers{ 5 };
-	constexpr int numberOfJobs{ 1000 };
+	constexpr int numberOfJobs{ 150 };
 	NiceMock<MockJobMonitor> jobMonitor;
 	EXPECT_CALL(jobMonitor, jobExecutionStarted(_))
 		.Times(numberOfJobs);

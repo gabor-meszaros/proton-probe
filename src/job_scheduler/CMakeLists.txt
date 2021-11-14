@@ -8,3 +8,4 @@ add_library(
 	"job_queue.cpp"
 )
 
+target_compile_features(job_scheduler_lib PRIVATE cxx_std_17)

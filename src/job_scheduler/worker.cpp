@@ -23,9 +23,10 @@ namespace ProtonProbe
 	{
 		while (mWork || (mFinishRemainingJobs && !mJobQueue.empty()))
 		{
-			if (!mJobQueue.empty())
+			const auto optionalHandle{ mJobQueue.pop() };
+			if (optionalHandle)
 			{
-				const JobHandle& handle{ mJobQueue.pop() };
+				const JobHandle& handle{ optionalHandle.value() };
 				{
 					const std::lock_guard<std::mutex> lock(mJobExecutionContexSwitchMutex);
 					mCurrentJob = handle.id;

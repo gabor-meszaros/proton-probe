@@ -9,9 +9,14 @@ namespace ProtonProbe
 		mQueue.push(item);
 	}
 
-	JobHandle& JobQueue::pop()
+	std::optional<JobHandle> JobQueue::pop()
 	{
 		const std::lock_guard<std::mutex> lock(mQueueMutex);
+
+		if (mQueue.empty())
+		{
+			return {};
+		}
 
 		JobHandle& element{ mQueue.front() };
 		mQueue.pop();

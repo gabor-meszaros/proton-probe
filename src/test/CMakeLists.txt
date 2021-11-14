@@ -31,5 +31,8 @@ add_dependencies(
 	job_scheduler_lib
 )
 
+
+target_compile_features(job_scheduler_test PRIVATE cxx_std_17)
+
 include(GoogleTest)
 gtest_discover_tests(job_scheduler_test)
