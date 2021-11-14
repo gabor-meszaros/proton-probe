@@ -21,6 +21,7 @@ namespace ProtonProbe
 
 	void Worker::operator()()
 	{
+		// TODO: Do not use busy wait but solve it with conditional variables or at least sleep a bit
 		while (mWork || (mFinishRemainingJobs && !mJobQueue.empty()))
 		{
 			const auto optionalHandle{ mJobQueue.pop() };

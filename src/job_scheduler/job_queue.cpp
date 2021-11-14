@@ -34,6 +34,7 @@ namespace ProtonProbe
 	{
 		const std::lock_guard<std::mutex> lock(mQueueMutex);
 
+		// TODO: Inherit from the std::queue and do this on the underlying container
 		std::queue<JobHandle> filteredQueue;
 		while (!mQueue.empty())
 		{
@@ -55,6 +56,7 @@ namespace ProtonProbe
 	{
 		const std::lock_guard<std::mutex> lock(mQueueMutex);
 
+		// TODO: Inherit from the std::queue and do this on the underlying container
 		bool found{ false };
 		std::queue<JobHandle> temporaryQueue;
 		while (!mQueue.empty())
