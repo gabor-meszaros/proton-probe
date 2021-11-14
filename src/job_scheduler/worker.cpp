@@ -74,4 +74,11 @@ namespace ProtonProbe
 			mCancelCurrentJob = true;
 		}
 	}
+
+	bool Worker::executes(const IJob::IdType job)
+	{
+		const std::lock_guard<std::mutex> lock(mJobExecutionContexSwitchMutex);
+
+		return mCurrentJob == job;
+	}
 }

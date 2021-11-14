@@ -54,6 +54,20 @@ namespace ProtonProbe
 		}
 	}
 
+	bool JobScheduler::hasProcessed(const IJob::IdType job)
+	{
+		bool found{ mJobQueue.contains(job) };
+		if (found)
+		{
+			return false;
+		}
+		for (auto& worker : mWorkers)
+		{
+			found |= worker.executes(job);
+		}
+		return !found;
+	}
+
 	JobScheduler::~JobScheduler()
 	{
 		for (auto& worker : mWorkers)

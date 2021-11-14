@@ -50,4 +50,28 @@ namespace ProtonProbe
 			filteredQueue.pop();
 		}
 	}
+
+	bool JobQueue::contains(const IJob::IdType job)
+	{
+		const std::lock_guard<std::mutex> lock(mQueueMutex);
+
+		bool found{ false };
+		std::queue<JobHandle> temporaryQueue;
+		while (!mQueue.empty())
+		{
+			JobHandle& item{ mQueue.front() };
+			if (item.id == job)
+			{
+				found = true;
+			}
+			temporaryQueue.push(item);
+			mQueue.pop();
+		}
+		while (!temporaryQueue.empty())
+		{
+			mQueue.push(temporaryQueue.front());
+			temporaryQueue.pop();
+		}
+		return found;
+	}
 }

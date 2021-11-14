@@ -19,6 +19,7 @@ namespace ProtonProbe
 		IJob::IdType add(IJob& job);
 		void stop(bool finishRemaininJobs = true);
 		void cancel(const IJob::IdType job);
+		bool hasProcessed(const IJob::IdType job);
 		~JobScheduler();
 
 	private:

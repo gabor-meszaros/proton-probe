@@ -17,6 +17,7 @@ namespace ProtonProbe
 		std::optional<JobHandle> pop();
 		bool empty();
 		void cancel(const IJob::IdType job);
+		bool contains(const IJob::IdType job);
 
 	private:
 		std::queue<JobHandle> mQueue;
