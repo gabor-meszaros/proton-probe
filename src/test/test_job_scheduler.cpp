@@ -277,3 +277,24 @@ TEST(AJobScheduler, ExecutesTheJobsInFifoOrder) {
 
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, CanTellIfAJobHasBeenProcessed) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	JobScheduler scheduler(jobMonitor, 1);
+
+	InfiniteCancellableJob jobForKeepingTheWorkerBusy;
+	const IJob::IdType jobForWorker{ scheduler.add(jobForKeepingTheWorkerBusy) };
+	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait until the worker picks it up
+	
+	NiceMock<MockJob> jobForTheQueue;
+	const IJob::IdType jobForQueue{ scheduler.add(jobForTheQueue) };
+
+	ASSERT_THAT(scheduler.hasProcessed(jobForWorker), Eq(false));
+	ASSERT_THAT(scheduler.hasProcessed(jobForQueue), Eq(false));
+
+	scheduler.cancel(jobForWorker);
+	scheduler.stop(true);
+
+	ASSERT_THAT(scheduler.hasProcessed(jobForWorker), Eq(true));
+	ASSERT_THAT(scheduler.hasProcessed(jobForQueue), Eq(true));
+}
