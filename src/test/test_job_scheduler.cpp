@@ -272,22 +272,27 @@ TEST_F(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
 }
 
 TEST_F(AJobScheduler, ExecutesTheJobsInFifoOrder) {
+	// That is quite a dirty way to implement this test, but time is running
+	// and I do not know how to setup this mock in parallel with running the
+	// test with it (in this case, when the sequence is important).
+	const IJob::IdType firstCallId{ 0 };
+	const IJob::IdType secondCallId{ 1 };
+	const IJob::IdType thirdCallId{ 2 };
+	{
+		InSequence s;
+		EXPECT_CALL(jobMonitor, jobExecutionStarted(firstCallId))
+			.Times(1);
+		EXPECT_CALL(jobMonitor, jobExecutionStarted(secondCallId))
+			.Times(1);
+		EXPECT_CALL(jobMonitor, jobExecutionStarted(thirdCallId))
+			.Times(1);
+	}
+
 	JobScheduler scheduler(jobMonitor, singleWorker);
 
-	const IJob::IdType blockingJobUntilFinishingSetup{ addInfiniteCancellableJob(scheduler) };
-	
-	const IJob::IdType firstJobId{ scheduler.add(arbitraryJob) };
-	const IJob::IdType secondJobId{ scheduler.add(arbitraryJob) };
-	const IJob::IdType thirdJobId{ scheduler.add(arbitraryJob) };
-
-	EXPECT_CALL(jobMonitor, jobExecutionStarted(firstJobId))
-		.Times(1);
-	EXPECT_CALL(jobMonitor, jobExecutionStarted(secondJobId))
-		.Times(1);
-	EXPECT_CALL(jobMonitor, jobExecutionStarted(thirdJobId))
-		.Times(1);
-
-	scheduler.cancel(blockingJobUntilFinishingSetup);
+	ASSERT_THAT(scheduler.add(arbitraryJob), Eq(firstCallId));
+	ASSERT_THAT(scheduler.add(arbitraryJob), Eq(secondCallId));
+	ASSERT_THAT(scheduler.add(arbitraryJob), Eq(thirdCallId));
 
 	waitUntilEveryJobWasProcessedAndStop(scheduler);
 }
