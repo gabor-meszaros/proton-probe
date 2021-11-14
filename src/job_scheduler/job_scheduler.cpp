@@ -47,6 +47,11 @@ namespace ProtonProbe
 
 	void JobScheduler::cancel(const IJob::IdType job)
 	{
+		if (IJob::INVALID_JOB_ID == job)
+		{
+			throw std::invalid_argument("The ID for the cancellation must be valid");
+		}
+
 		mJobQueue.cancel(job);
 		for (auto& worker : mWorkers)
 		{
