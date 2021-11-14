@@ -252,3 +252,28 @@ TEST(AJobScheduler, RunsEveryJobOnceEvenRunningOftenOnEmptyQueue) {
 	}
 	scheduler.stop(true);
 }
+
+TEST(AJobScheduler, ExecutesTheJobsInFifoOrder) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	JobScheduler scheduler(jobMonitor, 1);
+
+	InfiniteCancellableJob jobForBlockingUntilFullTestSetup;
+	const IJob::IdType blockingJob{ scheduler.add(jobForBlockingUntilFullTestSetup) };
+	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Wait until the worker picks it up
+	
+	NiceMock<MockJob> jobForTheQueue;
+	const IJob::IdType firstJobId{ scheduler.add(jobForTheQueue) };
+	const IJob::IdType secondJobId{ scheduler.add(jobForTheQueue) };
+	const IJob::IdType thirdJobId{ scheduler.add(jobForTheQueue) };
+
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(firstJobId))
+		.Times(1);
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(secondJobId))
+		.Times(1);
+	EXPECT_CALL(jobMonitor, jobExecutionStarted(thirdJobId))
+		.Times(1);
+
+	scheduler.cancel(blockingJob);
+
+	scheduler.stop(true);
+}
