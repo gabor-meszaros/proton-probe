@@ -80,16 +80,6 @@ namespace ProtonProbe
 
 	JobScheduler::~JobScheduler()
 	{
-		for (auto& worker : mWorkers)
-		{
-			worker.stop(false);
-		}
-		for (auto& thread : mWorkerThreads)
-		{
-			if (thread.joinable())
-			{
-				thread.join();
-			}
-		}
+		stop(false /* Do not process the remainig jobs in the queue */);
 	}
 }
