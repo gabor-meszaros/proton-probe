@@ -305,3 +305,10 @@ TEST(AJobScheduler, ThrowsOnCancellingAnInvalidJobId) {
 
 	ASSERT_THROW(scheduler.cancel(IJob::INVALID_JOB_ID), std::invalid_argument);
 }
+
+TEST(AJobScheduler, ThrowsOnCheckingJobProcessedStateWithInvalidJobId) {
+	NiceMock<MockJobMonitor> jobMonitor;
+	JobScheduler scheduler(jobMonitor);
+
+	ASSERT_THROW(scheduler.hasProcessed(IJob::INVALID_JOB_ID), std::invalid_argument);
+}
