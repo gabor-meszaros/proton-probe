@@ -61,6 +61,11 @@ namespace ProtonProbe
 
 	bool JobScheduler::hasProcessed(const IJob::IdType job)
 	{
+		if (IJob::INVALID_JOB_ID == job)
+		{
+			throw std::invalid_argument("The ID for checking the processed state of a job must be valid");
+		}
+
 		bool found{ mJobQueue.contains(job) };
 		if (found)
 		{
